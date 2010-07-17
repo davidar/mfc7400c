@@ -106,6 +106,7 @@ int main(int argc, char **argv) {
             case 'c': mode = "CGRAY";  break;
             case 'g': mode = "GRAY64"; break;
             case 't': mode = "TEXT";   break;
+            case '-': mode = NULL;     break;
             default:
                 fprintf(stderr, "ERROR: unrecognised mode, "
                                 "should be one of [cgt]\n");
@@ -134,11 +135,13 @@ int main(int argc, char **argv) {
     libusb_set_interface_alt_setting(device_handle, 0, 0);
 
     control_in_vendor_device(1, 2, 0, 255); /* returns 05 10 01 02 00 */
-    char *config = build_config(
-            mode, MIN(resolution, 300), resolution,
-            PAGE_WIDTH * MIN(resolution, 300)/100,
-            PAGE_HEIGHT * resolution/100);
-    send_config(config); free(config);
+    if(mode) {
+        char *config = build_config(
+                mode, MIN(resolution, 300), resolution,
+                PAGE_WIDTH * MIN(resolution, 300)/100,
+                PAGE_HEIGHT * resolution/100);
+        send_config(config); free(config);
+    }
     int page = 1;
     FILE *fp = NULL;
     while(1) {
@@ -157,6 +160,9 @@ int main(int argc, char **argv) {
         } else if(num_bytes == 2 && buf[0] == 0xc2 && buf[1] == 0x00) {
             fprintf(stderr, "ERROR: Nothing to scan\n");
             break;
+        } else if(num_bytes == 2 && buf[0] == 0xc3 && buf[1] == 0x00) {
+            fprintf(stderr, "ERROR: Paper jam\n");
+            break;
         } else if(num_bytes == 1 && buf[0] == 0x80) {
             fprintf(stderr, "No more pages\n");
             fclose(fp);
@@ -166,6 +172,10 @@ int main(int argc, char **argv) {
             fclose(fp); fp = NULL;
             send_config("");
             page++;
+        } else if(num_bytes == 1 && buf[0] == 0xc3) {
+            fprintf(stderr, "Paper jam\n");
+            fclose(fp);
+            break;
         } else {
             fprintf(stderr, "Received unknown data: %02x ", buf[0]);
             if(num_bytes == 2) fprintf(stderr, "%02x", buf[1]);
