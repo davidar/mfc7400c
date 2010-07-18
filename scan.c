@@ -144,9 +144,11 @@ int main(int argc, char **argv) {
     }
     int page = 1;
     FILE *fp = NULL;
+    int sleep_time = 0;
     while(1) {
         unsigned char buf[0x1000];
         int num_bytes = bulk_read(4, buf, 0x1000);
+        if(num_bytes) sleep_time = 0;
         if(num_bytes > 2) {
             if(!fp) {
                 char fname[8];
@@ -155,35 +157,38 @@ int main(int argc, char **argv) {
                 fp = fopen(fname, "wb");
             }
             fwrite(buf, 1, num_bytes, fp);
-        } else if(num_bytes == 0) {
+        } else if(num_bytes == 0 && sleep_time < 10) {
+#ifdef DEBUG
+            fprintf(stderr, "Sleeping\n");
+#endif
+            sleep_time++;
             usleep(200 * 1000);
         } else if(num_bytes == 2 && buf[0] == 0xc2 && buf[1] == 0x00) {
-            fprintf(stderr, "ERROR: Nothing to scan\n");
-            break;
+            fprintf(stderr, "ERROR: Nothing to scan\n"); break;
         } else if(num_bytes == 2 && buf[0] == 0xc3 && buf[1] == 0x00) {
-            fprintf(stderr, "ERROR: Paper jam\n");
-            break;
+            fprintf(stderr, "ERROR: Paper jam\n"); break;
         } else if(num_bytes == 1 && buf[0] == 0x80) {
-            fprintf(stderr, "No more pages\n");
-            fclose(fp);
-            break;
-        } else if(num_bytes == 1 && buf[0] == 0x81) {
-            fprintf(stderr, "Feeding in another page\n");
+            fprintf(stderr, "No more pages\n"); break;
+        } else if((num_bytes == 1 && buf[0] == 0x81) || sleep_time >= 10) {
+            fprintf(stderr, "Feeding in another page");
+            if(sleep_time >= 10) fprintf(stderr, " (timeout)");
+            fprintf(stderr, "\n");
             fclose(fp); fp = NULL;
             send_config("");
             page++;
+            sleep_time = 0;
         } else if(num_bytes == 1 && buf[0] == 0xc3) {
-            fprintf(stderr, "Paper jam\n");
-            fclose(fp);
-            break;
+            fprintf(stderr, "Paper jam\n"); break;
+        } else if(num_bytes == 1 && buf[0] == 0xc4) {
+            fprintf(stderr, "Scan aborted\n"); break;
         } else {
-            fprintf(stderr, "Received unknown data: %02x ", buf[0]);
-            if(num_bytes == 2) fprintf(stderr, "%02x", buf[1]);
+            fprintf(stderr, "Received unknown data: %02x", buf[0]);
+            if(num_bytes == 2) fprintf(stderr, " %02x", buf[1]);
             fprintf(stderr, "\n");
-            if(fp) fclose(fp);
             break;
         }
     }
+    if(fp) fclose(fp);
     control_in_vendor_device(2, 2, 0, 255); /* returns 05 10 02 02 00 */
 
     libusb_release_interface(device_handle, 0);
