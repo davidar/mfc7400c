@@ -1,0 +1,148 @@
+35a36
+> static int  nRawFile = 0;
+37a39
+> static HANDLE  hRawFile = 0;
+102c104
+< 		DWORD  dwStrLen;
+---
+> 		DWORD  dwStrLen, dwResult;
+127c129
+< 								(int)(ltime%1000),
+---
+> 								(ltime%1000),
+260c262
+< 			}else if( ' ' <= *lpszCmd && *lpszCmd < (char)0x80 ){
+---
+> 			}else if( ' ' <= *lpszCmd && *lpszCmd < 0x80 ){
+322a325,445
+> //	Function name:	OpenRawData
+> //
+> //
+> //	Abstract:
+> //		受信バイナリデータ格納用ファイルをオープン
+> //
+> //
+> //	Parameters:
+> //		なし
+> //
+> //
+> //	Return values:
+> //		なし
+> //
+> //-----------------------------------------------------------------------------
+> //	OpenRawData（旧SaveData）
+> void
+> OpenRawData( void )
+> {
+> #if 0
+> 	if( nRawFile == 1 ){
+> 		//
+> 		// 受信バイナリデータ格納が有効
+> 		//
+> 		char  szTwdsRawFile[ MAX_PATH ];
+> 
+> 		//
+> 		// 受信バイナリデータ・ファイル名の設定
+> 		//
+> 
+> 		strcpy( szTwdsRawFile, BROTHER_SANE_DIR );
+> 		strcat( szTwdsRawFile, RAWFILENAME );
+> 	}
+> 	return;
+> #endif
+> }
+> 
+> 
+> //-----------------------------------------------------------------------------
+> //
+> //	Function name:	CloseRawData
+> //
+> //
+> //	Abstract:
+> //		受信バイナリデータ格納用ファイルをクローズ
+> //
+> //
+> //	Parameters:
+> //		なし
+> //
+> //
+> //	Return values:
+> //		なし
+> //
+> //-----------------------------------------------------------------------------
+> //	CloseRawData（旧SaveData）
+> void
+> CloseRawData( void )
+> {
+> #if 0
+> 
+> 	if( hRawFile != NULL ){
+> 		//
+> 		// 受信バイナリデータ・ファイルがオープンされている
+> 		//
+> 		fclose( hRawFile );
+> 
+> 		hRawFile = 0;
+> 
+> 	}
+> 	return;
+> #endif
+> }
+> 
+> 
+> //-----------------------------------------------------------------------------
+> //
+> //	Function name:	SaveRawData
+> //
+> //
+> //	Abstract:
+> //		受信バイナリデータをファイルに出力
+> //
+> //
+> //	Parameters:
+> //		lpRawData
+> //			受信バイナリデータへのポインタ
+> //
+> //		nDataSize
+> //			受信バイナリデータのサイズ
+> //
+> //
+> //	Return values:
+> //		なし
+> //
+> //-----------------------------------------------------------------------------
+> //	SaveRawData（旧SaveData）
+> void
+> SaveRawData( BYTE *lpRawData, int nDataSize )
+> {
+> #if 0
+> 	DWORD	WrittenSize;
+> 
+> 
+> 
+> 	if( nRawFile == 1 && hRawFile != 0 ){
+> 		//
+> 		// 受信バイナリデータ格納が有効で、ファイルもオープンされている
+> 		//
+> 		if( lpRawData != NULL ){
+> 
+> 			fwrite( lpRawData, sizeof(BYTE), nDataSize, hRawFile);
+> 		}
+> 	}
+> 	return;
+> #endif
+> }
+> 
+> 
+> //-----------------------------------------------------------------------------
+> //
+340c463
+< GetLogSwitch( Brother_Scanner *this )
+---
+> GetLogSwitch( void )
+342c465
+< 	nLogFile = this->modelConfig.bLogFile;
+---
+> 	nLogFile = 1;
+343a467
+> 	nRawFile = 1;

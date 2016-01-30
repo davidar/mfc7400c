@@ -1,0 +1,97 @@
+ReadMe
+
+Linux scanner drivers for MFC products 
+
+1. Licensing Agreements
+This package contains the source code provided under GNU General Public License
+(./COPYING), GNU Lesser General Public License (./COPYING.LIB) and the binary
+code provided under Brother Public License (./COPYING.brother).
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+2. Installation instructions for RedHat and Mandrake users:
+
+i) Install The latest versions of Sane and Xsane
+   # rpm -ivh sane-xxxxxx.rpm
+   # rpm -ivh xsan-xxxxxx.rpm
+
+ii) Install the Brother scanner driver
+    # rpm -ivh brscan-0.0.11-0.i386.rpm
+
+iii) Modify the /etc/fstab file
+     # echo 'none /proc/bus/usb usbdevfs auto,devmode=0666 0 0' >>/etc/fstab
+
+iv) Modify the USB access control
+     # umount /proc/bus/usb
+     # mount /proc/bus/usb
+     # mknode -m 666 /dev/usbscanner c 180 48
+     
+------------------------------------------------------------------------------------------------------------------------------------------------------
+3. Installation instructions for SuSE users:
+
+i) Install The latest versions of Sane and Xsane
+   # rpm -ivh sane-xxxxxx.rpm
+   # rpm -ivh xsan-xxxxxx.rpm
+
+ii) Install the Brother scanner driver
+    # rpm -ivh brscan-0.0.11-0.i386.rpm
+
+iii) Modify the /etc/fstab file
+     # vi /etc/fstab 	
+     change the line: 
+     'none /proc/bus/usb ...' to 'none /proc/bus/usb usbdevfs auto,devmode=0666 0 0'
+
+iv) Modify the USB access control
+     # umount /proc/bus/usb
+     # mount /proc/bus/usb
+     # mknode -m 666 /dev/usbscanner c 180 48
+    
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+4. Installation instructions for Debian users:
+
+i) Install The latest versions of Sane and Xsane
+    # apt-get install sane xsan
+
+ii) Install the Brother scanner driver
+    # dpkg -i brscan-0.0.11-0.i386.deb
+
+iii) Modify the /etc/fstab file
+     # echo 'none /proc/bus/usb usbdevfs auto,devmode=0666 0 0' >> /etc/fstab
+
+iv) Modify the USB access control
+     # umount /proc/bus/usb
+     # mount /proc/bus/usb
+     # mknode -m 666 /dev/usbscanner c 180 48
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+5. FAQ's
+
+There are a number of frequently asked questions (FAQ's) when when using the Brother scanner 
+driver and Xsane.
+ 
+i) I set the scanning resolution to 200 dpi but the image is scanned at 100 dpi, why?
+Setting file deleted or coruppted, reboot Xsane and the setting file will be created.
+
+ii) When I scan multiple documents, the images are overwritten, why?
+When multiple documents are scanned, you must put a number after the filename, otherwise 
+the scanned data will be overwritten.
+
+iii) When I scan multiple page documents using the Automatic Document Feeder (ADF), all 
+pages get scanned, put only page 1 shows in XSANE, why?
+You need to modify the multipage scanning option in XSANE.  in XSANE, click on Preferences, 
+Setup, Enhancements.  Change the "Automatic document Feeder Modus:" from "None" to 
+"Automatic Document Feeder".
+
+iv) When a scan, or prescan has been cancelled, the paper which is left in the machine is not
+automatically fed out of the machine, Why?
+Press the Stop key to feed the paper out of the machine.
+
+v) When I try to open Xsane or Xscanimage, I get a segmentation fault error.  What should I do?
+This problem only affects users who are running Mandrake Linux 8.2.  You should update the 
+"libusb" library.  This can be downloaded from http://rpm.pbone.net/index.php3/stat/4/idpl/407739/com/libusb0.1_4-0.1.6a-2mdk.i586.rpm.html
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+Please visit URL below for the further infomation and the latest information.
+http://solutions.brother.com/linux/index.html
+
+EOM.
+
